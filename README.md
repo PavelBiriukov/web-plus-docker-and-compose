@@ -1,5 +1,5 @@
 # Докеризация приложения
 
-IP: 51.250.65.78
-Frontend: https://klmvsn.nomoredomains.monster
-Backend: https://api.klmvsn.nomoredomains.monster
+- IP адрес 158.160.74.79
+- Frontend https://kupiproject.nomoredomains.work
+- Backend https://api.kupiproject.nomoredomains.work 

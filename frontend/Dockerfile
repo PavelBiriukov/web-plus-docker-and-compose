@@ -1,12 +1,16 @@
-FROM node:16-alpine AS builder
+FROM node:16.15-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
-RUN npm i
-COPY . .
-RUN npm run build
+RUN npm ci
+COPY . ./
+RUN npm run build \
+    && rm -rf ./src \
+    && rm -rf node ./node_modules
 
-FROM nginx:latest AS frontend
+FROM nginx:1.25.1-alpine AS frontend
+WORKDIR /app
 COPY --from=builder /app/build /usr/share/nginx/html
-COPY nginx/conf.d/default.conf /etc/nginx/conf.d
-EXPOSE 8081
-CMD ["nginx", "-g", "daemon off;"]
+COPY ./nginx/conf.d/default.conf /etc/nginx/conf.d
+EXPOSE 80
+
+CMD [ "nginx", "-g", "daemon off;" ]

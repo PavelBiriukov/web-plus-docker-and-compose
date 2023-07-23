@@ -1,51 +1,47 @@
-version: '3.3'
+version: "3"
 
 services:
+
   backend:
-    container_name: 'kpd-backend'
+    container_name: backend
     build:
       context: backend
       dockerfile: Dockerfile
-    env_file: ./.env
-    restart: always
+    image: backend
+    env_file: .env
     ports:
-      - '4000:3000'
-    networks: 
-      - backend-database
+      - '4000:3001'
     depends_on:
-      - postgres
-
-  postgres:
-    container_name: 'database'
-    image: postgres:12.12-alpine
-    restart: always
-    env_file: ./.env
-    ports: 
-      - '5432:5432'
-    environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
-      - PGDATA=/var/lib/postgresql/data/db
-    volumes: 
-      - ~/pg_data:/var/lib/postgresql/data
-    
+      - database
+    restart: on-failure
     networks:
-      - backend-database
-
+      - backend
+      
   frontend:
-    container_name: 'kpd-frontend'
+    container_name: frontend
     build:
       context: frontend
       dockerfile: Dockerfile
+    image: frontend
     ports:
-      - '8081:80'
+      - "8081:80"
+    restart: on-failure
+    networks:
+      - frontend
+
+  database:
+    container_name: postgres
+    image: postgres:15.3-alpine
+    restart:  on-failure
+    env_file: .env
+    volumes:
+      - postgres_data:/data/postgres
+    networks:
+      - backend
 
 volumes:
-  pg_data:
-    driver: local
-  
-networks:
-  backend-database: {}
+  postgres_data:
 
-  
+networks:
+  backend:
+  frontend:

@@ -1,19 +1,35 @@
-import { IsEmail, IsUrl, Length } from 'class-validator';
-import { CommonEntity } from 'src/utils/CommonEntity';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsUrl,
+  Length,
+  IsString,
+  MinLength,
+} from 'class-validator';
 
-export class CreateUserDto extends CommonEntity {
-  @Length(2, 30)
+export class CreateUserDto {
+  @IsString({ message: 'Должно быть строкой' })
+  @IsNotEmpty({ message: 'Не должен быть пустым' })
+  @Length(2, 30, { message: 'должен быть не меньше 2 и не больше 30' })
   username: string;
 
-  @Length(2, 200)
+  @IsOptional()
+  @IsString({ message: 'Должно быть строкой' })
+  @Length(2, 200, { message: 'должен быть не меньше 2 и не больше 200' })
   about: string;
 
-  @IsUrl()
+  @IsOptional()
+  @IsUrl({ message: 'Не корректный URL' })
   avatar: string;
 
-  @IsEmail()
+  @IsString({ message: 'Должно быть строкой' })
+  @IsNotEmpty({ message: 'Не должен быть пустым' })
+  @IsEmail({}, { message: 'Не корректный email' })
   email: string;
 
-  @Length(3, 10)
+  @IsString({ message: 'Должно быть строкой' })
+  @IsNotEmpty({ message: 'Не должен быть пустым' })
+  @MinLength(6, { message: 'должен быть больше 6' })
   password: string;
 }

@@ -1,1 +1,1 @@
-export { GiftPage } from './gift-page'
+export { GiftPage } from './gift-page';
