@@ -7,7 +7,7 @@ export default () => ({
     database: process.env.POSTGRES_DB,
     username: process.env.POSTGRES_USER,
     password: process.env.POSTGRES_PASSWORD,
-    synchronize: process.env.SYNCHRONIZE ? process.env.SYNCHRONIZE.toLowerCase() === 'true' : false,
+    synchronize: process.env.SYNCHRONIZE.toLowerCase() === 'true',
   },
   jwt: {
     secret: process.env.JWT_SECRET,

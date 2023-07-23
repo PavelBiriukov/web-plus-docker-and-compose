@@ -1,5 +1,5 @@
 # Докеризация приложения
 
-IP: 158.160.13.60
-Frontend: https://kupipodariday.pavel.nomoredomains.xyz/
-Backend: https://api.kupipodariday.pavel.nomoredomains.xyz/
+IP: 51.250.65.78
+Frontend: https://klmvsn.nomoredomains.monster
+Backend: https://api.klmvsn.nomoredomains.monster
