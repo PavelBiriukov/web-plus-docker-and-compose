@@ -1,65 +1,89 @@
 import {
-  Body,
   Controller,
-  Delete,
   Get,
-  Param,
-  ParseIntPipe,
-  Patch,
   Post,
+  Body,
   Req,
+  Patch,
+  Param,
+  Delete,
   UseGuards,
+  ForbiddenException,
 } from '@nestjs/common';
-import { JwtGuard } from 'src/auth/guards/jwt-auth.guard';
+import { WishesService } from './wishes.service';
 import { CreateWishDto } from './dto/create-wish.dto';
 import { UpdateWishDto } from './dto/update-wish.dto';
-import { WishesService } from './wishes.service';
+import { JwtGuard } from 'src/auth/jwt/jwt.guard';
+import { Wish } from './entities/wish.entity';
+import {
+  INVALID_WISH_OWNER,
+  RAISED_ALREADY_EXISTS,
+} from 'src/utils/constants/constants';
 
 @Controller('wishes')
 export class WishesController {
-  constructor(private wishesService: WishesService) {}
+  constructor(private readonly wishesService: WishesService) {}
+
+  @UseGuards(JwtGuard)
+  @Post()
+  async createWish(@Body() createWishDto: CreateWishDto, @Req() req) {
+    return await this.wishesService.create(req.user, createWishDto);
+  }
 
   @Get('last')
-  getLastWishes() {
-    return this.wishesService.findLastWishes();
+  async getWishesLast() {
+    return await this.wishesService.getWishesLast();
   }
 
   @Get('top')
-  getTopWishes() {
-    return this.wishesService.findTopWishes();
+  async getTopWishes() {
+    return await this.wishesService.getWishesTop();
   }
 
   @UseGuards(JwtGuard)
   @Get(':id')
-  async getWishById(@Param('id') id: string) {
-    return await this.wishesService.findOne(+id);
-  }
-
-  @UseGuards(JwtGuard)
-  @Post()
-  async create(@Req() req, @Body() createWishDto: CreateWishDto) {
-    return await this.wishesService.create(req.user, createWishDto);
-  }
-
-  @UseGuards(JwtGuard)
-  @Post(':id/copy')
-  copy(@Param('id') id: number, @Req() req) {
-    return this.wishesService.copy(id, req.user);
+  async findOne(@Param('id') id: number): Promise<Wish> {
+    return await this.wishesService.getWishById(id);
   }
 
   @UseGuards(JwtGuard)
   @Patch(':id')
-  async updateOne(
+  async update(
+    @Param('id') id: number,
     @Req() req,
-    @Param('id') id: string,
-    @Body() UpdatedWish: UpdateWishDto,
+    @Body() updateWishDto: UpdateWishDto,
   ) {
-    return await this.wishesService.updateOne(+id, UpdatedWish, req.user.id);
+    const wish = await this.wishesService.getWishById(id);
+    if (req.user.id !== wish.owner.id) {
+      throw new ForbiddenException(INVALID_WISH_OWNER);
+    }
+    if (updateWishDto.price && wish.raised > 0) {
+      throw new ForbiddenException(RAISED_ALREADY_EXISTS);
+    }
+    return await this.wishesService.updateWish(Number(id), updateWishDto);
   }
 
   @UseGuards(JwtGuard)
   @Delete(':id')
-  async delete(@Param('id', ParseIntPipe) id: number, @Req() req) {
-    return this.wishesService.remove(id, req.user.id);
+  remove(@Param('id') id: string, @Req() req) {
+    return this.wishesService.remove(Number(id), req.user.id);
+  }
+
+  @UseGuards(JwtGuard)
+  @Post(':id/copy')
+  public async copyWish(@Req() req, @Param('id') id: number) {
+    const wish = await this.wishesService.getWishById(id);
+    await this.wishesService.updateWish(id, { copied: ++wish.copied });
+    const { name, link, image, price, description } = wish;
+    if (wish.owner.id !== req.user.id) {
+      await this.wishesService.create(req.user, {
+        name,
+        link,
+        image,
+        price,
+        description,
+      });
+    }
+    return {};
   }
 }

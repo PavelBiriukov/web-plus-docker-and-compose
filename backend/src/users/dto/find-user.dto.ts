@@ -1,6 +1,6 @@
-import { MinLength } from 'class-validator';
+import { IsNotEmpty } from 'class-validator';
 
 export class FindUserDto {
-  @MinLength(2)
-  query: string;
+  @IsNotEmpty()
+  public query: string;
 }

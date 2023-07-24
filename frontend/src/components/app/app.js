@@ -1,29 +1,31 @@
-import { useState, useEffect, useContext } from "react";
-import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
+import { useState, useEffect, useContext } from 'react';
+import {
+  BrowserRouter, Route, Switch, Redirect,
+} from 'react-router-dom';
 
-import { Header } from "../header";
-import { Footer } from "../footer";
-import { SignIn } from "../sign-in";
-import { SignUp } from "../sign-up";
-import { MainPage } from "../main-page";
-import { ProfilePage } from "../profile-page";
-import { UserPage } from "../user-page";
-import { SearchPage } from "../search-page";
-import { WishlistPage } from "../wishlist-page";
-import { GiftPage } from "../gift-page";
-import { getOwnUser } from "../../utils/api";
-import { PrivateRoute } from "../private-route";
-import { SearchBar } from "../search-bar";
+import { Header } from '../header';
+import { Footer } from '../footer';
+import { SignIn } from '../sign-in';
+import { SignUp } from '../sign-up';
+import { MainPage } from '../main-page';
+import { ProfilePage } from '../profile-page';
+import { UserPage } from '../user-page';
+import { SearchPage } from '../search-page';
+import { WishlistPage } from '../wishlist-page';
+import { GiftPage } from '../gift-page';
+import { getOwnUser } from '../../utils/api';
+import { PrivateRoute } from '../private-route';
+import { SearchBar } from '../search-bar';
 
-import { UserContext } from "../../utils/context";
+import { UserContext } from '../../utils/context';
 
-import styles from "./app.module.css";
+import styles from './app.module.css';
 
 function App() {
   const [userCtx, setUserCtx] = useState(null);
 
   useEffect(() => {
-    if (sessionStorage.getItem("auth_token")) {
+    if (sessionStorage.getItem('auth_token')) {
       getOwnUser().then((res) => {
         setUserCtx(res);
       });
@@ -43,13 +45,13 @@ function App() {
 
 const ApplicationView = () => {
   const [userCtx] = useContext(UserContext);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState('');
   const [queryHits, setQueryHits] = useState({
-    query: "",
+    query: '',
     hits: [],
   });
 
-  const redirectTo = userCtx && userCtx.id ? "/gifts/line" : "/signin";
+  const redirectTo = userCtx && userCtx.id ? '/gifts/line' : '/signin';
 
   const changeQuery = (e) => {
     setQuery(e.target.value);
