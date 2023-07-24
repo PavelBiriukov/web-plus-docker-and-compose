@@ -1,27 +1,14 @@
-import {
-  IsString,
-  IsNotEmpty,
-  Length,
-  IsArray,
-  ArrayNotEmpty,
-} from 'class-validator';
+import { IsArray, IsNumber, IsUrl, Length } from 'class-validator';
+import { CommonEntity } from 'src/utils/CommonEntity';
 
-export class CreateWishlistDto {
-  @IsNotEmpty()
-  @Length(1, 250, { message: 'должен быть не меньше 1 и не больше 250' })
-  @IsString({ message: 'Должно быть строкой' })
+export class CreateWishlistDto extends CommonEntity {
+  @Length(1, 250)
   name: string;
 
-  @IsString({ message: 'Должно быть строкой' })
-  @Length(1500)
-  description: string;
-
-  @IsString({ message: 'Должно быть строкой' })
+  @IsUrl()
   image: string;
 
-  @IsNotEmpty({ message: 'Не должен быть пустым' })
-  @ArrayNotEmpty()
-  @IsArray({ message: 'Должно быть массивом' })
-  @IsString({ each: true })
+  @IsArray()
+  @IsNumber({}, { each: true })
   itemsId: number[];
 }

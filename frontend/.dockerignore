@@ -1,13 +1,19 @@
-
 # Deps
-node_modules
+node_modules/
 
-# build
-build
+# Docker
+Dockerfile
+docker-compose.yml
 
-# git
-.gitignore
-
+# README и файлы лицензий
 README.md
+LICENSE
 
-.env
+# Dist
+dist/
+build/
+
+# IDE Files
+.idea/
+.vscode
+.DS_Store 

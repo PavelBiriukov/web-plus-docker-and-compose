@@ -1,1 +1,1 @@
-export { UserSupportedCard } from './user-supported-card';
+export { UserSupportedCard } from './user-supported-card'

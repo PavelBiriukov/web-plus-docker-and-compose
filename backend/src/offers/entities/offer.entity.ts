@@ -1,40 +1,21 @@
-import { IsNumber, Min, IsBoolean, IsDate } from 'class-validator';
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  ManyToOne,
-} from 'typeorm';
+import { Entity, Column, ManyToOne } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { Wish } from 'src/wishes/entities/wish.entity';
+import { CommonEntity } from 'src/utils/CommonEntity';
 
 @Entity()
-export class Offer {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @CreateDateColumn()
-  @IsDate()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  @IsDate()
-  updatedAt: Date;
-
+export class Offer extends CommonEntity {
   @ManyToOne(() => User, (user) => user.offers)
   user: User;
 
   @ManyToOne(() => Wish, (wish) => wish.offers)
   item: Wish;
 
-  @Column({ scale: 2, default: 0 })
-  @IsNumber()
-  @Min(0)
+  @Column()
   amount: number;
 
-  @Column({ default: false })
-  @IsBoolean()
+  @Column({
+    default: false,
+  })
   hidden: boolean;
 }

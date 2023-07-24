@@ -1,1 +1,1 @@
-export { GoodCard } from './good-card';
+export { GoodCard } from './good-card'
