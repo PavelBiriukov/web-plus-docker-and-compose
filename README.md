@@ -1,4 +1,5 @@
 # Докеризация приложения
+___________________________________________________
 
 IP: 158.160.13.60 
 Frontend: https://kupipodariday.pavel.nomoredomains.xyz/ 
