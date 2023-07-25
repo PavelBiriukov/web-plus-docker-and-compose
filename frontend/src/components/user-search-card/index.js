@@ -1,1 +1,1 @@
-export { UserSearchCard } from './user-search-card';
+export { UserSearchCard } from './user-search-card'

@@ -1,18 +1,15 @@
-FROM node:16.15-alpine AS builder
+FROM node:16-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci --audit=false
-COPY . ./
-RUN npm run build \
-    && rm -rf ./src \
-    && rm -rf node ./node_modules
+RUN npm ci
+COPY . .
+RUN npm run build
 
-FROM node:16.15-alpine AS backend
+FROM node:16-alpine AS backend
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci --omit=dev --no-audit --no-fund && npm i -g pm2
+RUN npm ci --omit=dev --audit=false && npm i -g pm2
 COPY --from=builder /app/dist ./dist
-COPY ./ecosystem.config.js ./
-EXPOSE 3001
-
-CMD [ "pm2-runtime", "start", "ecosystem.config.js" ]
+COPY ./ecosystem.config.js .
+EXPOSE 3000
+CMD ["pm2-runtime", "start", "ecosystem.config.js"]

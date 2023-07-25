@@ -1,15 +1,14 @@
-import { IsNotEmpty, IsNumber, IsPositive, IsBoolean } from 'class-validator';
+import { IsNumber, IsBoolean, Min } from 'class-validator';
+import { CommonEntity } from 'src/utils/CommonEntity';
 
-export class CreateOfferDto {
+export class CreateOfferDto extends CommonEntity {
   @IsNumber()
-  @IsNotEmpty({ message: 'Не должен быть пустым' })
-  @IsPositive({ message: 'Число должно быть больше нуля' })
+  @Min(1)
   amount: number;
 
   @IsBoolean()
-  hidden: boolean;
+  hidden?: boolean;
 
   @IsNumber()
-  @IsNotEmpty({ message: 'Не должен быть пустым' })
   itemId: number;
 }

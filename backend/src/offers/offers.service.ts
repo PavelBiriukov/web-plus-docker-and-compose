@@ -1,19 +1,14 @@
 import {
   Injectable,
-  BadRequestException,
   NotFoundException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, FindManyOptions, FindOneOptions } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CreateOfferDto } from './dto/create-offer.dto';
 import { Offer } from './entities/offer.entity';
 import { User } from 'src/users/entities/user.entity';
 import { WishesService } from 'src/wishes/wishes.service';
-import {
-  WISH_NOT_FOUND,
-  YOUR_WISH,
-  RAISED_MORE,
-} from 'src/utils/constants/constants';
 
 @Injectable()
 export class OffersService {
@@ -23,51 +18,55 @@ export class OffersService {
     private wishesService: WishesService,
   ) {}
 
-  async create(user: User, createOfferDto: CreateOfferDto) {
-    const wish = await this.wishesService.getWishById(createOfferDto.itemId);
+  async create(user: User, createOfferDto: CreateOfferDto): Promise<Offer> {
+    const wish = await this.wishesService.findOne(createOfferDto.itemId);
     if (!wish) {
-      throw new NotFoundException(WISH_NOT_FOUND);
+      throw new NotFoundException('Подарок не найден');
     }
     if (user.id === wish.owner.id) {
-      throw new BadRequestException(YOUR_WISH);
+      throw new ForbiddenException('Нельзя скинуться на свой подарок');
     }
-    const updatedRaised = wish.raised + createOfferDto.amount;
-    if (updatedRaised > wish.price) {
-      throw new BadRequestException(RAISED_MORE);
+    const offerSum = Number(wish.raised) + Number(createOfferDto.amount);
+    if (+offerSum > wish.price) {
+      throw new ForbiddenException('Необходимая сумма собрана');
     }
-    await this.wishesService.setRaised(wish.id, updatedRaised);
-    const offer = this.offersRepository.create({
+    const newOffer = this.offersRepository.create({
       ...createOfferDto,
-      user,
+      user: user,
       item: wish,
     });
-    return await this.offersRepository.save(offer);
+
+    if (newOffer.hidden === false) {
+      delete newOffer.user;
+      return this.offersRepository.save(newOffer);
+    }
+
+    delete newOffer.user.password;
+    delete newOffer.user.email;
+    delete newOffer.item.owner.password;
+    delete newOffer.item.owner.email;
+
+    return this.offersRepository.save(newOffer);
   }
 
-  findMany(query: FindManyOptions<Offer>) {
-    return this.offersRepository.find(query);
-  }
-
-  findOne(query: FindOneOptions<Offer>) {
-    return this.offersRepository.findOne(query);
-  }
-
-  getAllOffers() {
-    return this.findMany({
-      relations: {
-        item: { owner: true },
-        user: { wishes: true, offers: true },
-      },
+  async findAll() {
+    const offers = await this.offersRepository.find({
+      relations: ['item', 'user'],
     });
+    if (offers.length === 0) {
+      throw new NotFoundException('Предложений не найдено');
+    }
+    return offers;
   }
 
-  getOfferById(id: number) {
-    return this.findOne({
+  async findOne(id: number) {
+    const offer = await this.offersRepository.find({
       where: { id },
-      relations: {
-        item: { owner: true },
-        user: { wishes: true, offers: true },
-      },
+      relations: ['item', 'user'],
     });
+    if (offer.length === 0) {
+      throw new NotFoundException('Таких предложений');
+    }
+    return offer;
   }
 }
